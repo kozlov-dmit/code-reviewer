@@ -1,0 +1,19 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Test cache
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Editor configs
+.vscode/
+.idea/
+
+# OS junk
+.DS_Store
+Thumbs.db
