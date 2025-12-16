@@ -1,11 +1,11 @@
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import requests
 
 
 class GigaChatClient:
-    """Tiny client for sending prompts to GigaChat-compatible OpenAI API."""
+    """Tiny client for sending prompts to a GigaChat-compatible OpenAI API."""
 
     def __init__(
         self,
@@ -35,7 +35,6 @@ class GigaChatClient:
         if not response.ok:
             raise RuntimeError(f"GigaChat API error {response.status_code}: {response.text}")
         data = response.json()
-        # OpenAI-compatible shape
         try:
             return data["choices"][0]["message"]["content"]
         except (KeyError, IndexError) as exc:

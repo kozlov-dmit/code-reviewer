@@ -1,54 +1,31 @@
-import re
-
-import pytest
-
-from agent import PullRequestAgent
+from code_reviewer.agent import PullRequestAgent, parse_bitbucket_repo_slug
 
 
-def test_prompt_contains_pr_metadata_and_patch():
+def test_parse_bitbucket_repo_slug_accepts_url_and_slug():
+    assert parse_bitbucket_repo_slug("workspace/repo") == "workspace/repo"
+    assert parse_bitbucket_repo_slug("https://bitbucket.org/workspace/repo") == "workspace/repo"
+    assert parse_bitbucket_repo_slug("https://bitbucket.org/workspace/repo.git") == "workspace/repo"
+
+
+def test_prompt_truncates_large_diff():
     agent = PullRequestAgent(
-        github_repo="owner/repo",
-        github_token="token",
+        bitbucket_repo="team/repo",
+        bitbucket_username="user",
+        bitbucket_token="token",
         gigachat_token="giga",
-        max_patch_chars=40,  # small to force truncation
+        max_diff_chars=10,
     )
-
     pr = {
-        "number": 42,
-        "title": "Add new feature",
-        "user": {"login": "alice"},
-        "html_url": "https://github.com/owner/repo/pull/42",
-        "body": "Implements a great feature.",
-        "base": {"repo": {"full_name": "owner/repo"}},
+        "id": 7,
+        "title": "Update logic",
+        "author": {"display_name": "Alice"},
+        "links": {"html": {"href": "https://bitbucket.org/team/repo/pull-requests/7"}},
+        "description": "Example change",
     }
+    diff = "0123456789abcdefghij"
 
-    files = [
-        {
-            "filename": "app.py",
-            "status": "modified",
-            "patch": "\n".join(
-                [
-                    "@@ -1,3 +1,5 @@",
-                    " import os",
-                    " import sys",
-                    "+def foo():",
-                    "+    return 1",
-                    "+# extra lines to force truncation",
-                    "+a",
-                    "+b",
-                    "+c",
-                    "+d",
-                ]
-            ),
-        }
-    ]
+    prompt = agent._build_prompt(pr, diff)  # pylint: disable=protected-access
 
-    prompt = agent._build_prompt(pr, files)  # pylint: disable=protected-access
-
-    assert "Pull Request: #42 Add new feature" in prompt
-    assert "Author: alice" in prompt
-    assert "app.py (modified)" in prompt
-    assert "@@ -1,3 +1,5 @@" in prompt
-
-    # Ensure truncation marker appears when patch exceeds max_patch_chars
     assert "... truncated ..." in prompt
+    assert "Diff:" in prompt
+    assert "Pull Request: #7" in prompt

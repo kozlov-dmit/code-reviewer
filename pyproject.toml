@@ -1,0 +1,21 @@
+[project]
+name = "code-reviewer"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.4.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"

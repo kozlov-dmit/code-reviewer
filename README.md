@@ -1,29 +1,25 @@
-# code-reviewer
+# Bitbucket code-review agent
 
-Простой агент на Python, который загружает Pull Request из GitHub и отправляет его в GigaChat для краткого code-review.
+Агент на Python3, который находит все открытые Pull Request в Bitbucket, отправляет дифф каждого PR в GigaChat и публикует комментарий с коротким code review.
 
 ## Подготовка
 
 1. Установите зависимости:
-```
-pip install -r requirements.txt
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 2. Задайте переменные окружения:
-- `GITHUB_TOKEN` — токен с правом чтения PR.
-- `GITHUB_REPO` — репозиторий в формате `owner/name`.
-- `GIGACHAT_TOKEN` — токен доступа к GigaChat.
-- Необязательно: `GIGACHAT_API_URL` (по умолчанию `https://gigachat.devices.sberbank.ru/api/v1`), `GIGACHAT_MODEL`.
+   - `BITBUCKET_REPO` или `BITBUCKET_REPO_URL` — URL репозитория в Bitbucket или slug вида `workspace/repo`.
+   - `BITBUCKET_USERNAME` — имя пользователя (используется с app password).
+   - `BITBUCKET_TOKEN` — app password для Bitbucket.
+   - `GIGACHAT_TOKEN` — токен доступа к GigaChat.
+   - Необязательно: `BITBUCKET_API_URL` (по умолчанию `https://api.bitbucket.org/2.0`), `GIGACHAT_API_URL`, `GIGACHAT_MODEL`.
 
 ## Запуск
 
-Отправить PR на ревью:
-```
-python main.py <pr_number>
-```
-
-Параметры можно передавать флагами вместо переменных окружения:
-```
-python main.py --repo owner/name --github-token ... --gigachat-token ... 123
+Отправить все открытые PR на ревью и добавить комментарии:
+```bash
+python main.py --repo-url https://bitbucket.org/<workspace>/<repo> --bitbucket-username <user> --bitbucket-token <app_password> --gigachat-token <token>
 ```
 
-Для отладки используйте `-v`, чтобы увидеть запросы.
+Параметры можно передавать флагами либо через переменные окружения. Добавьте `-v` для отладки запросов.
